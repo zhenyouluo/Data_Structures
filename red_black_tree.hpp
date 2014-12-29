@@ -551,6 +551,10 @@ protected:
         return location;
     }
 
+    /**
+     * \brief Fix color caused by node deletion
+     * \complexity O(log n)
+     */
     void erase_fixup(node_pointer node) {
         while (node != root_ && node->color == color_type::BLACK) {
 
@@ -602,7 +606,7 @@ protected:
     /**
      * \brief Remove an existing node
      * \complexity O(log n) (successor() call)
-     * \return Node to be deleted (data might have been moved away)
+     * \return Node to be deleted
      */
     node_pointer erase_node (node_pointer node) {
         // y is the node to be removed (has at most 1 child)
@@ -622,16 +626,28 @@ protected:
         }
 
         if (y != node) {
-            // removing a different node, copy data
-            node->key = std::move(y->key);
-            node->value = std::move(y->value);
+            // should remove y, replace node instead
+            if ((y->parent = node->parent)) {
+                if (node->is_left_child())
+                    y->parent->left = y;
+                else
+                    y->parent->right = y;
+            } else {
+                root_ = y;
+            }
+            if ((y->left = node->left)) {
+                y->left->parent = y;
+            }
+            if ((y->right = node->right))  {
+                y->right->parent = y;
+            }
         }
 
         if (y->color == color_type::BLACK)
             erase_fixup(x);
 
         size_--;
-        return y;
+        return node;
     }
 
 private:
