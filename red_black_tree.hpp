@@ -72,6 +72,15 @@ public:
         return parent && parent->right == this;
     }
 
+    RedBlackNode* sibling() {
+        return noconst(&RedBlackNode::sibling);
+    }
+    const RedBlackNode* sibling() const {
+        if (!parent)
+            return nullptr;
+        return parent->left == this ? parent->right : parent->left;
+    }
+
     /**
      * \brief Get node with minimum key in the current subtree
      * \complexity O(log n)
@@ -282,8 +291,30 @@ public:
      * \brief Insert new node (assign if already present)
      * \complexity O(log n)
      */
-    iterator insert(const Key& key, const Value& value) {
+    iterator insert (const Key& key, const Value& value) {
         return iterator(this, insert_node(key,value,true));
+    }
+
+    /**
+     * \brief Remove a node
+     * \complexity O(log n)
+     */
+    iterator erase (iterator it) {
+        if (it == end() || it.tree != this)
+            return end();
+        iterator next = it;
+        ++next;
+        node_pointer todelete = erase_node(it.node);
+        delete todelete;
+        return next;
+    }
+
+    /**
+     * \brief Remove a node
+     * \complexity O(log n)
+     */
+    iterator erase(const Key &search) {
+        return erase(find(search));
     }
 
     /**
@@ -355,7 +386,7 @@ public:
      */
     iterator find(const Key& search) {
         if (empty())
-            return nullptr;
+            return end();
         return iterator(this, root_->recursive_find(search,false));
     }
 
@@ -365,7 +396,7 @@ public:
      */
     const_iterator find(const Key& search) const {
         if (empty())
-            return nullptr;
+            return end();
         return const_iterator(this, root_->recursive_find(search,false));
     }
 
@@ -449,6 +480,7 @@ protected:
 
     /**
      * \brief Fix color of a newly inserted node
+     * \complexity O(log n)
      */
     void insert_fixup(node_pointer node) {
         while (node && node->parent && node->parent->color == color_type::RED) {
@@ -492,6 +524,7 @@ protected:
     /**
      * \brief Insert new node (assign if already present)
      * \complexity O(log n)
+     * \return Matching node
      */
     node_pointer insert_node(const Key& key, const Value& value, bool assign) {
         if (!root_)
@@ -516,6 +549,89 @@ protected:
             location->value = value;
         }
         return location;
+    }
+
+    void erase_fixup(node_pointer node) {
+        while (node != root_ && node->color == color_type::BLACK) {
+
+            node_pointer sib = node->sibling();
+            if (sib && sib->color == color_type::RED) {
+                sib->color = color_type::BLACK;
+                node->parent->color = color_type::RED;
+                if (node->is_left_child())
+                    rotate_left(node->parent);
+                else
+                    rotate_right(node->parent);
+                sib = node->sibling();
+            }
+            if (sib->left->color == color_type::BLACK && sib->right->color == color_type::BLACK) {
+                sib->color = color_type::RED;
+                node = node->parent;
+            } else if (node->is_left_child()) {
+                if (sib->right->color == color_type::BLACK) {
+                    sib->left->color = color_type::BLACK;
+                    sib->color = color_type::RED;
+                    rotate_right(sib);
+                    sib = node->sibling();
+                }
+                sib->color = node->parent->color;
+                node->parent->color = color_type::RED;
+                sib->right->color = color_type::BLACK;
+                rotate_left(node->parent);
+                node = root_;
+            } else {
+                // same as above, swapping left and right
+                if (sib->left->color == color_type::BLACK) {
+                    sib->right->color = color_type::BLACK;
+                    sib->color = color_type::RED;
+                    rotate_left(sib);
+                    sib = node->sibling();
+                }
+                sib->color = node->parent->color;
+                node->parent->color = color_type::RED;
+                sib->left->color = color_type::BLACK;
+                rotate_right(node->parent);
+                node = root_;
+
+            }
+
+        }
+        node->color = color_type::BLACK;
+    }
+
+    /**
+     * \brief Remove an existing node
+     * \complexity O(log n) (successor() call)
+     * \return Node to be deleted (data might have been moved away)
+     */
+    node_pointer erase_node (node_pointer node) {
+        // y is the node to be removed (has at most 1 child)
+        node_pointer y = !node->left || !node->right ? node : node->successor();
+        // x is the only child of y (if it has 1 child) null otherwise
+        node_pointer x = y->left ? y->left : y->right;
+
+        if (x)
+            x->parent = y->parent;
+
+        if (!y->parent) {
+            root_ = x;
+        } else if (y->is_left_child()) {
+            y->parent->left = x;
+        } else {
+            y->parent->right = x;
+        }
+
+        if (y != node) {
+            // removing a different node, copy data
+            node->key = std::move(y->key);
+            node->value = std::move(y->value);
+        }
+
+        if (y->color == color_type::BLACK)
+            erase_fixup(x);
+
+        size_--;
+        return y;
     }
 
 private:
