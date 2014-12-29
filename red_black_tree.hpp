@@ -46,12 +46,7 @@ public:
      *                   rather than null on unmatched key
      */
     RedBlackNode* recursive_find(const Key& search, bool get_parent) {
-        RedBlackNode* fail_return = get_parent ? this : nullptr;
-        if (Comparator()(search,key))
-            return left ? left->recursive_find(search, get_parent) : fail_return;
-        else if (Comparator()(key,search))
-            return right ? right->recursive_find(search, get_parent) : fail_return;
-        return this;
+        return noconst(&RedBlackNode::recursive_find, search, get_parent);
     }
 
     /**
@@ -82,18 +77,14 @@ public:
      * \complexity O(log n)
      */
     RedBlackNode* minimum() {
-        if (left)
-            return left->minimum();
-        return this;
+        return noconst(&RedBlackNode::minimum);
     }
     /**
      * \brief Get node with maximum key in the current subtree
      * \complexity O(log n)
      */
     RedBlackNode* maximum() {
-        if (right)
-            return right->maximum();
-        return this;
+        return noconst(&RedBlackNode::maximum);
     }
 
     /**
@@ -101,15 +92,7 @@ public:
      * \complexity O(log n)
      */
     RedBlackNode* successor() {
-        if (right)
-            return right->minimum();
-        RedBlackNode* node = this;
-        RedBlackNode* p = parent;
-        while(p && node->is_right_child()) {
-            node = p;
-            p = p->parent;
-        }
-        return p;
+        return noconst(&RedBlackNode::successor);
     }
 
     /**
@@ -117,15 +100,7 @@ public:
      * \complexity O(log n)
      */
     RedBlackNode* predecessor() {
-        if (left)
-            return left->maximum();
-        RedBlackNode* node = *this;
-        RedBlackNode* p = parent;
-        while(p && node->is_left_child()) {
-            node = p;
-            p = p->p;
-        }
-        return p;
+        return noconst(&RedBlackNode::predecessor);
     }
 
 
@@ -187,6 +162,15 @@ public:
     RedBlackNode *left   = nullptr;
     RedBlackNode *right  = nullptr;
     Color color;
+
+private:
+    /**
+     * \brief Simple hack to avoid code duplication
+     */
+    template<class... FuncArgs, class... PassedArgs>
+        RedBlackNode* noconst(const RedBlackNode* (RedBlackNode::*method)(FuncArgs...) const, PassedArgs... args) const {
+            return const_cast<RedBlackNode*>((this->*method)(args...));
+        }
 };
 
 template<class Key, class Value, class Comparator = std::less<Key>>
@@ -338,14 +322,14 @@ public:
      * \brief Get iterator to the first element
      * \complexity O(log n)
      */
-    const_iterator begin() const{
+    const_iterator begin() const {
         return const_iterator(this,root_ ? root_->minimum() : nullptr);
     }
     /**
      * \brief Get iterator to past-the-last element
      * \complexity O(1)
      */
-    const_iterator end() const{
+    const_iterator end() const {
         return const_iterator(this, nullptr);
     }
 
@@ -353,14 +337,14 @@ public:
      * \brief Get iterator to the first element
      * \complexity O(log n)
      */
-    const_iterator cbegin() const{
+    const_iterator cbegin() const {
         return begin();
     }
     /**
      * \brief Get iterator to past-the-last element
      * \complexity O(1)
      */
-    const_iterator cend() const{
+    const_iterator cend() const {
         return end();
     }
 
@@ -382,7 +366,7 @@ public:
     const_iterator find(const Key& search) const {
         if (empty())
             return nullptr;
-        return iterator(this, root_->recursive_find(search,false));
+        return const_iterator(this, root_->recursive_find(search,false));
     }
 
     /**
