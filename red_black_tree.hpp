@@ -229,6 +229,12 @@ public:
             return copy;
         }
 
+        iterator_base operator-- (int) {
+            iterator_base copy = *this;
+            --*this;
+            return copy;
+        }
+
         reference_type operator* () const {
             return node->value;
         }
