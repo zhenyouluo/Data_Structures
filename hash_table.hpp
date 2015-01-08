@@ -1,3 +1,6 @@
+#ifndef HASH_TABLE_HPP
+#define HASH_TABLE_HPP
+
 #include <functional>
 #include <utility>
 #include <vector>
@@ -343,3 +346,5 @@ private:
     std::vector<bucket_type> bucket_list;
     int size_ = 0;
 };
+
+#endif // HASH_TABLE_HPP

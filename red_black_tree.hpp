@@ -1,5 +1,5 @@
-#ifndef RED_BLACK_TREE_HPP_INCLUDED
-#define RED_BLACK_TREE_HPP_INCLUDED
+#ifndef RED_BLACK_TREE_HPP
+#define RED_BLACK_TREE_HPP
 
 /**
 \file
@@ -162,6 +162,25 @@ public:
             p = p->p;
         }
         return p;
+    }
+
+    /**
+     * \brief Copy the sub-tree rooted in the current node
+     * \complexity O(n)
+     */
+    RedBlackNode* deep_copy() const {
+        RedBlackNode* node = new RedBlackNode(*this);
+        if (left) {
+            node->left = left->deep_copy();
+            node->left->parent = node;
+        }
+        if (right) {
+            node->right = right->deep_copy();
+            node->right->parent = node;
+        }
+        node->parent = nullptr;
+
+        return node;
     }
 
     Key   key;
@@ -678,4 +697,4 @@ private:
 };
 
 
-#endif // RED_BLACK_TREE_HPP_INCLUDED
+#endif // RED_BLACK_TREE_HPP
