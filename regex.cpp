@@ -22,11 +22,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "regex.hpp"
+
+#include "re_ast.hpp"
 #include "re_nfa.hpp"
+#include "re_parser.hpp"
 
 using namespace regex;
 
-RegEx::RegEx(const std::string &expression) {
+RegEx::RegEx(const std::string &expression, std::shared_ptr<Parser> parser)
+        : parser_(parser ? parser : std::shared_ptr<Parser> {new SimpleParser}){
     set_expression(expression);
 }
 
@@ -47,9 +51,7 @@ std::string RegEx::expression() const {
 }
 
 nfa::NFA* RegEx::compiled() const {
-    nfa::NFA* automaton = new nfa::NFA;
-    // TODO Parser which creates an AST and move build to automaton
-    return automaton;
+    return  new nfa::NFA(std::move(parser_->compile(expression_)));
 }
 
 void RegEx::compile() {

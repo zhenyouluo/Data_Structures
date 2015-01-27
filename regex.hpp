@@ -33,10 +33,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace regex {
 
 namespace nfa { class NFA; }
+class Parser;
 
 class RegEx {
 public:
-    explicit RegEx(const std::string& expression);
+    explicit RegEx(const std::string& expression, std::shared_ptr<Parser> parser = nullptr);
 
     /**
      * @brief Checks if the entire string matches the regular expression
@@ -60,6 +61,7 @@ protected:
 private:
     std::string expression_;
     std::shared_ptr<nfa::NFA> compiled_;
+    std::shared_ptr<Parser> parser_;
 };
 
 } // namespace regex
