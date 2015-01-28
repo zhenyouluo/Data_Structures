@@ -141,10 +141,11 @@ ast::Node *SimpleParser::parse_quantifier(std::istream &input, ast::Node *child)
     else if (c == '+')
         return new ast::KleenePlus(child);
     // TODO: a{3,5}
-    input.unget();
+    if (c != std::char_traits<char>::eof())
+        input.unget();
     return child;
 }
 
 bool SimpleParser::is_primary(std::char_traits<char>::int_type c) const {
-    return c != ')';
+    return c != ')' && c != '|' && c != std::char_traits<char>::eof();
 }
