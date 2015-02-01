@@ -40,7 +40,7 @@ public:
     explicit RegEx(const std::string& expression, std::shared_ptr<Parser> parser = nullptr);
 
     /**
-     * @brief Checks if the entire string matches the regular expression
+     * \brief Checks if the entire string matches the regular expression
      */
     bool full_match(const std::string &string);
 
@@ -49,12 +49,12 @@ public:
 
 protected:
     /**
-     * @brief Compiles the regular expression
-     * @return A pointer with the compiled expression
+     * \brief Compiles the regular expression
+     * \return A pointer with the compiled expression
      */
     nfa::NFA *compiled() const;
     /**
-     * @brief Compiles the regular expression and stores the result
+     * \brief Compiles the regular expression and stores the result
      */
     void compile();
 

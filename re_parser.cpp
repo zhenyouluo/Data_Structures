@@ -96,6 +96,8 @@ ast::Node *SimpleParser::parse_primary(std::istream &input) const {
         if (capture)
             node = new ast::Subexpression(node);
         input.get(); // skip )
+    } else {
+        node = new ast::SingleCharacter(c);
     }
 
     return parse_quantifier(input, node);

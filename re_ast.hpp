@@ -44,7 +44,7 @@ public:
     Node(){}
     virtual ~Node(){}
     /**
-     * @brief Build an automaton. It must always contain an input and output node.
+     * \brief Build an automaton. It must always contain an input and output node.
      */
     virtual nfa::NFA build() const = 0;
 
@@ -54,7 +54,7 @@ private:
 };
 
 /**
- * @brief Node with a single child (abstract). Takes ownersip
+ * \brief Node with a single child (abstract). Takes ownersip
  */
 class UnaryNode : public Node {
 public:
@@ -71,7 +71,7 @@ protected:
 };
 
 /**
- * @brief Node with two children (abstract). Takes ownersip
+ * \brief Node with two children (abstract). Takes ownersip
  */
 class BinaryNode : public Node {
 public:
@@ -90,7 +90,7 @@ protected:
 };
 
 /**
- * @brief /a|b/
+ * \brief /a|b/
  */
 class Choice : public BinaryNode {
 public:
@@ -99,7 +99,7 @@ public:
 };
 
 /**
- * @brief /ab/
+ * \brief /ab/
  */
 class Concat : public BinaryNode {
 public:
@@ -108,7 +108,7 @@ public:
 };
 
 /**
- * @brief /a* /
+ * \brief /a* /
  */
 class KleeneStar : public UnaryNode {
 public:
@@ -117,7 +117,7 @@ public:
 };
 
 /**
- * @brief /a+/
+ * \brief /a+/
  */
 class KleenePlus : public UnaryNode {
 public:
@@ -126,7 +126,7 @@ public:
 };
 
 /**
- * @brief /a?/
+ * \brief /a?/
  */
 class Optional : public UnaryNode {
 public:
@@ -135,7 +135,7 @@ public:
 };
 
 /**
- * @brief /(a)/ Needed if maybe I want to capture them.
+ * \brief /(a)/ Needed if maybe I want to capture them.
  */
 class Subexpression : public UnaryNode {
 public:
@@ -144,7 +144,7 @@ public:
 };
 
 /**
- * @brief Leaf, implements a simple transition
+ * \brief Leaf, implements a simple transition
  */
 class Leaf : public Node {
 public:
@@ -155,7 +155,7 @@ private:
 };
 
 /**
- * @brief Single character transition
+ * \brief Single character transition
  */
 class SingleCharacter : public Leaf {
 public:

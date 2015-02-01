@@ -37,8 +37,13 @@ RegEx::RegEx(const std::string &expression, std::shared_ptr<Parser> parser)
 bool RegEx::full_match(const std::string &string) {
     if (!compiled_)
         compile();
-    // TODO run the NFA and check if at the end we reached the NFA output and the end of the string
-    return false;
+    nfa::NfaRunner run(*compiled_);
+    for (char c : string) {
+        if (run.state().empty())
+            return false;
+        run.step(c);
+    }
+    return run.acceptable();
 }
 
 void RegEx::set_expression(const std::string &expression) {

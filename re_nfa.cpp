@@ -212,3 +212,47 @@ void Node::merge(const Node &other) {
     empty_transitions_.insert(other.empty_transitions_.begin(),other.empty_transitions_.end());
 }
 
+NfaRunner::NfaRunner(const NFA& nfa) : nfa_(nfa) {
+    set_state({nfa.input()});
+}
+
+const NodeList& NfaRunner::state() const {
+    return state_;
+}
+
+void NfaRunner::set_state(const NodeList& state) {
+    state_ = expand_empty(state);
+}
+
+bool NfaRunner::acceptable() const {
+    return nfa_.output() && state_.count(nfa_.output());
+}
+
+void NfaRunner::step(char c) {
+    state_ = expand(state_,c);
+}
+
+NodeList NfaRunner::expand_empty(NodeList source) {
+    NodeList output;
+    while (!source.empty()) {
+        Node* current_node = *source.begin();
+        source.erase(current_node);
+        if (!current_node)
+            continue;
+        output.insert(current_node);
+        for (Node* adjacent : current_node->empty_transitions()) {
+            if (!source.count(adjacent) && !output.count(adjacent))
+                source.insert(adjacent);
+        }
+    }
+    return output;
+}
+
+NodeList NfaRunner::expand(NodeList source, char c) {
+    NodeList output;
+    for (Node* source_node : source)
+        for (Node* output_node : source_node->next_nodes(c))
+            if (!output.count(output_node))
+                output.insert(output_node);
+    return expand_empty(output);
+}

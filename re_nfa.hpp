@@ -46,7 +46,7 @@ typedef std::unordered_set<Node*> NodeList;
 class NFA {
 public:
     /**
-     * @brief Creates a NFA with an input and output node but no transitions
+     * \brief Creates a NFA with an input and output node but no transitions
      */
     NFA();
     NFA(NFA&& other);
@@ -55,7 +55,7 @@ public:
     NFA& operator=(const NFA&) = delete;
 
     /**
-     * @brief Explicit copy
+     * \brief Explicit copy
      */
     NFA duplicate() const;
 
@@ -77,7 +77,7 @@ public:
     void remove_node(Node* node);
 
     /**
-     * @brief Remove and delete all nodes (including input and output)
+     * \brief Remove and delete all nodes (including input and output)
      */
     void clear();
 
@@ -92,33 +92,33 @@ public:
     void make_deterministic();
 
     /**
-     * @brief Merges another graph to the current one, emptying it in the process
-     * @return Whether the merge was successful
+     * \brief Merges another graph to the current one, emptying it in the process
+     * \return Whether the merge was successful
      */
     bool merge(NFA& other);
 
     /**
-     * @brief Moves all the nodes from other to this
+     * \brief Moves all the nodes from other to this
      */
     void acquire_nodes(NFA& other);
 
     /**
-     * @brief Input node
+     * \brief Input node
      */
     Node* input() const;
 
     /**
-     * @brief Set input node
+     * \brief Set input node
      */
     void set_input(Node* node);
 
     /**
-     * @brief Output node
+     * \brief Output node
      */
     Node* output() const;
 
     /**
-     * @brief Set output node
+     * \brief Set output node
      */
     void set_output(Node* node);
 
@@ -130,7 +130,7 @@ private:
 
 
 /**
- * @brief Transition between nodes, takes a character and returns if it matches
+ * \brief Transition between nodes, takes a character and returns if it matches
  */
 class Transition {
 public:
@@ -144,7 +144,7 @@ public:
 };
 
 /**
- * @brief Automaton node
+ * \brief Automaton node
  */
 class Node {
 public:
@@ -153,49 +153,49 @@ public:
     virtual ~Node();
 
     /**
-     * @brief Polymorphic copy
-     * @note It will keep intact references to other nodes
+     * \brief Polymorphic copy
+     * \note It will keep intact references to other nodes
      */
     virtual Node* clone() const;
 
     /**
-     * @brief Translates references to other nodes
+     * \brief Translates references to other nodes
      */
     void translate(const std::unordered_map<Node*,Node*>& map);
 
     /**
-     * @brief Adds an empty transition
+     * \brief Adds an empty transition
      */
     void add_transition(Node* target);
 
     /**
-     * @brief Adds a transition
+     * \brief Adds a transition
      */
     void add_transition(Node* target, const Transition::Functor& condition);
 
     /**
-     * @brief Adds a transition
+     * \brief Adds a transition
      */
     void add_transition(const Transition& transition);
 
     /**
-     * @brief Returns nodes immediately reachable from this node
+     * \brief Returns nodes immediately reachable from this node
      */
     NodeList empty_transitions() const;
 
     /**
-     * @brief Returns the nodes directly accessible trhough the given character.
+     * \brief Returns the nodes directly accessible trhough the given character.
      * (It doesn't expand empty transitions)
      */
     NodeList next_nodes(char c) const;
 
     /**
-     * @brief Returns the containing graph
+     * \brief Returns the containing graph
      */
     NFA* graph() const;
 
     /**
-     * @brief Merge this node with another
+     * \brief Merge this node with another
      */
     void merge(const Node& other);
 
@@ -207,5 +207,44 @@ private:
     friend class NFA;
 };
 
-} } // namespace regex::dfa
+class NfaRunner {
+public:
+    explicit NfaRunner(const NFA& nfa);
+
+    /**
+     * \brief Returns the current state
+     */
+    const NodeList& state() const;
+
+    /**
+     * \brief Sets the current state
+     */
+    void set_state(const NodeList& state);
+
+    /**
+     * \brief Whether the current state contains an accepting node
+     */
+    bool acceptable() const;
+
+    /**
+     * \brief Advance to the state corresponding to the given input
+     */
+    void step(char c);
+
+protected:
+    /**
+     * \brief Expand empty transitions
+     */
+    static NodeList expand_empty(NodeList source);
+    /**
+     * \brief Expand transitions
+     */
+    static NodeList expand(NodeList source, char c);
+
+private:
+    const NFA& nfa_;
+    NodeList state_;
+};
+
+}} // namespace regex::dfa
 #endif // RE_DFA_HPP

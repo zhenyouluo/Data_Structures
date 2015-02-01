@@ -40,26 +40,26 @@ public:
     virtual ~Parser() {}
 
     /**
-     * @brief Compiles the input stream
-     * @return The corresponding automaton
+     * \brief Compiles the input stream
+     * \return The corresponding automaton
      */
     nfa::NFA compile(std::istream& input);
 
     /**
-     * @brief Compiles the input string
-     * @return The corresponding automaton
+     * \brief Compiles the input string
+     * \return The corresponding automaton
      */
     nfa::NFA compile(const std::string& input);
 
     /**
-     * @brief Whether the parser has encountered an error
+     * \brief Whether the parser has encountered an error
      */
     virtual bool error() const = 0;
 
 protected:
     /**
-     * @brief Parses the input stream
-     * @return A dynamically-allocated AST tree
+     * \brief Parses the input stream
+     * \return A dynamically-allocated AST tree
      */
     virtual ast::Node* parse(std::istream& input) = 0;
 };
