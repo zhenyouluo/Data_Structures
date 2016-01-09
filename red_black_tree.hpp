@@ -204,12 +204,12 @@ private:
 template<class Key, class Value, class Comparator = std::less<Key>>
 class RedBlackTree {
 public:
-    typedef Key   key_type;
-    typedef Value value_type;
-    typedef RedBlackNode<Key,Value,Comparator>  node_type;
-    typedef node_type*                          node_pointer;
-    typedef const node_type*                    node_const_pointer;
-    typedef typename node_type::Color           color_type;
+    typedef const Key                               key_type;
+    typedef Value                                   value_type;
+    typedef RedBlackNode<key_type,Value,Comparator> node_type;
+    typedef node_type*                              node_pointer;
+    typedef const node_type*                        node_const_pointer;
+    typedef typename node_type::Color               color_type;
 
     template<class NodePointer>
     class iterator_base {
@@ -439,6 +439,13 @@ public:
     bool empty() const {
         return !root_;
     }
+
+
+    template<class Policy, class Func>
+        void traverse(const Func& func)
+        {
+            Policy::traverse(root_, func);
+        }
 
 protected:
     /**
@@ -696,5 +703,81 @@ private:
     }
 };
 
+namespace traversal {
+
+struct Forward
+{
+    template<class NodePtr>
+        static NodePtr first(NodePtr node)
+        {
+            return node->left;
+        }
+
+    template<class NodePtr>
+        static NodePtr last(NodePtr node)
+        {
+            return node->right;
+        }
+};
+
+struct Reverse
+{
+    template<class NodePtr>
+        static NodePtr first(NodePtr node)
+        {
+            return node->right;
+        }
+
+    template<class NodePtr>
+        static NodePtr last(NodePtr node)
+        {
+            return node->left;
+        }
+};
+
+template<class Direction = Forward>
+    struct InOrder
+{
+    template<class NodePtr, class Func>
+        static void traverse(NodePtr node, const Func& func)
+        {
+            if ( !node )
+                return;
+            traverse(Direction::first(node), func);
+            func(node->key, node->value);
+            traverse(Direction::last(node), func);
+        }
+};
+
+template<class Direction = Forward>
+    struct PreOrder
+{
+    template<class NodePtr, class Func>
+        static void traverse(NodePtr node, const Func& func)
+        {
+            if ( !node )
+                return;
+            func(node->key, node->value);
+            traverse(Direction::first(node), func);
+            traverse(Direction::last(node), func);
+        }
+};
+
+template<class Direction = Forward>
+    struct PostOrder
+{
+    template<class NodePtr, class Func>
+        static void traverse(NodePtr node, const Func& func)
+        {
+            if ( !node )
+                return;
+            traverse(Direction::first(node), func);
+            traverse(Direction::last(node), func);
+            func(node->key, node->value);
+        }
+};
+
+
+} // namespace traversal
 
 #endif // RED_BLACK_TREE_HPP
